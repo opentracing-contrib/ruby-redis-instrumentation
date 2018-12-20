@@ -6,6 +6,12 @@ require "redis"
 # otherwise this name will collide
 class Redis
   module Instrumentation
+    COMMON_TAGS = {
+      'span.kind' => 'client',
+      'component' => 'redis-rb',
+      'db.type' => 'redis',
+    }
+
     class << self
 
       attr_accessor :tracer
@@ -29,12 +35,8 @@ class Redis
           alias_method :call_pipeline_original, :call_pipeline
 
           def call(command, trace: true)
-            tags = {
-              'span.kind' => 'client',
-              'component' => 'redis-rb',
-              'db.type' => 'redis',
-              'db.statement' => command.join(' '),
-            }
+            tags = ::Redis::Instrumentation::COMMON_TAGS
+            tags['db.statement'] = command.join(' ')
 
             # command[0] is usually the actual command name
             scope = ::Redis::Instrumentation.tracer.start_active_span("redis.#{command[0]}", tags: tags)
@@ -46,13 +48,8 @@ class Redis
 
           def call_pipeline(pipeline)
             commands = pipeline.commands
-            statement = commands.empty? ? "" : commands.map{ |arr| arr.join(' ') }.join(', ')
-            tags = {
-              'span.kind' => 'client',
-              'component' => 'redis-rb',
-              'db.type' => 'redis',
-              'db.statement' => statement,
-            }
+            tags = ::Redis::Instrumentation::COMMON_TAGS
+            tags['db.statement'] = commands.empty? ? "" : commands.map{ |arr| arr.join(' ') }.join(', ')
 
             scope = ::Redis::Instrumentation.tracer.start_active_span("redis.pipelined", tags: tags)
 
