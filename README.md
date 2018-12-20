@@ -2,6 +2,11 @@
 
 This gem provides OpenTracing auto-instrumentation for commands send through the Redis client.
 
+## Supported Versions
+
+- MRI 2.0 and newer
+- Redis 4.0.1 and newer
+
 ## Installation
 
 Add this line to your application's Gemfile:
