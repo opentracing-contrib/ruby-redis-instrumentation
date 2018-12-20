@@ -42,6 +42,12 @@ class Redis
             scope = ::Redis::Instrumentation.tracer.start_active_span("redis.#{command[0]}", tags: tags)
 
             call_original(command)
+          rescue => e
+            if scope
+              scope.span.set_tag("error", true)
+              scope.span.log_kv(key: "message", value: e.message)
+            end
+            raise e
           ensure
             scope.close if scope
           end
@@ -54,6 +60,12 @@ class Redis
             scope = ::Redis::Instrumentation.tracer.start_active_span("redis.pipelined", tags: tags)
 
             call_pipeline_original(pipeline)
+          rescue => e
+            if scope
+              scope.span.set_tag("error", true)
+              scope.span.log_kv(key: "message", value: e.message)
+            end
+            raise e
           ensure
             scope.close if scope
           end
