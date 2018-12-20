@@ -26,7 +26,7 @@ class Redis
       def patch_client
         ::Redis::Client.class_eval do
           alias_method :call_original, :call
-          alias_method :call_pipelined_original, :call_pipelined
+          alias_method :call_pipeline_original, :call_pipeline
 
           def call(command, trace: true)
             tags = {
@@ -44,7 +44,8 @@ class Redis
             scope.close if scope
           end
 
-          def call_pipelined(commands)
+          def call_pipeline(pipeline)
+            commands = pipeline.commands
             statement = commands.empty? ? "" : commands.map{ |arr| arr.join(' ') }.join(', ')
             tags = {
               'span.kind' => 'client',
@@ -55,7 +56,7 @@ class Redis
 
             scope = ::Redis::Instrumentation.tracer.start_active_span("redis.pipelined", tags: tags)
 
-            call_pipelined_original(commands)
+            call_pipeline_original(pipeline)
           ensure
             scope.close if scope
           end
