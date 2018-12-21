@@ -8,7 +8,7 @@ class Redis
   module Instrumentation
     COMMON_TAGS = {
       'span.kind' => 'client',
-      'component' => 'redis-rb',
+      'component' => 'ruby-redis',
       'db.type' => 'redis',
     }
 
