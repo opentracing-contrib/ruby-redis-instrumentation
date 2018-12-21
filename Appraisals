@@ -2,7 +2,7 @@ appraise 'redis-latest' do
   gem 'redis'
 end
 
-appriase 'redis 4.1.0' do
+appraise 'redis-4.1.0' do
   gem 'redis', '4.1.0'
 end
 
