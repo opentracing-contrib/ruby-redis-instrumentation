@@ -1,8 +1,11 @@
 # Redis::Instrumentation
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/redis/instrumentation`. To experiment with that code, run `bin/console` for an interactive prompt.
+This gem provides OpenTracing auto-instrumentation for commands send through the Redis client.
 
-TODO: Delete this and the text above, and describe your gem
+## Supported Versions
+
+- MRI 2.0 and newer
+- Redis 4.0.1 and newer
 
 ## Installation
 
@@ -22,7 +25,14 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+```ruby
+require 'redis/instrumentation'
+
+Redis::Instrumentation.instrument
+```
+
+`instrument` takes an optional argument, `tracer`, to set a custom OpenTracing
+tracer. It will default to `OpenTracing.global_tracer`.
 
 ## Development
 
