@@ -7,7 +7,7 @@ RSpec.describe Redis::Instrumentation do
   end
 
   let (:tracer) { OpenTracingTestTracer.build }
-  let (:redis) { ::Redis.new(host: 'localhost') }
+  let (:redis) { ::Redis.new(host: 'localhost', port: 6379) }
 
   before do
     allow_any_instance_of(::Redis::Client).to receive(:process).and_return(["test"])
@@ -41,7 +41,8 @@ RSpec.describe Redis::Instrumentation do
           'span.kind' => 'client',
           'component' => 'ruby-redis',
           'db.type' => 'redis',
-          'db.instance' => 'localhost:6379',
+          'db.instance' => 0,
+          'peer.address' => 'redis://localhost:6379',
           'db.statement' => 'set foo bar'
         }
         expect(span_tags).to eq expected_tags
@@ -71,7 +72,8 @@ RSpec.describe Redis::Instrumentation do
           'span.kind' => 'client',
           'component' => 'ruby-redis',
           'db.type' => 'redis',
-          'db.instance' => 'localhost:6379',
+          'db.instance' => 0,
+          'peer.address' => 'redis://localhost:6379',
           'db.statement' => 'multi, set foo bar, incr baz, exec'
         }
         expect(span_tags).to eq expected_tags
