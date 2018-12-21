@@ -10,7 +10,7 @@ class Redis
       'span.kind' => 'client',
       'component' => 'ruby-redis',
       'db.type' => 'redis',
-    }
+    }.freeze
 
     class << self
 
@@ -35,7 +35,7 @@ class Redis
           alias_method :call_pipeline_original, :call_pipeline
 
           def call(command, trace: true)
-            tags = ::Redis::Instrumentation::COMMON_TAGS
+            tags = ::Redis::Instrumentation::COMMON_TAGS.dup
             tags['db.statement'] = command.join(' ')
             tags['db.instance'] = db
             tags['peer.address'] = "redis://#{host}:#{port}"
@@ -56,7 +56,7 @@ class Redis
 
           def call_pipeline(pipeline)
             commands = pipeline.commands
-            tags = ::Redis::Instrumentation::COMMON_TAGS
+            tags = ::Redis::Instrumentation::COMMON_TAGS.dup
             tags['db.statement'] = commands.empty? ? "" : commands.map{ |arr| arr.join(' ') }.join(', ')
             tags['db.instance'] = db
             tags['peer.address'] = "redis://#{host}:#{port}"
