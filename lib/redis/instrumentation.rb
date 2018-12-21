@@ -37,6 +37,8 @@ class Redis
           def call(command, trace: true)
             tags = ::Redis::Instrumentation::COMMON_TAGS
             tags['db.statement'] = command.join(' ')
+            # there can only be one instance listening per host/port combination
+            tags['db.instance'] = "#{host}:#{port}"
 
             # command[0] is usually the actual command name
             scope = ::Redis::Instrumentation.tracer.start_active_span("redis.#{command[0]}", tags: tags)
@@ -56,6 +58,7 @@ class Redis
             commands = pipeline.commands
             tags = ::Redis::Instrumentation::COMMON_TAGS
             tags['db.statement'] = commands.empty? ? "" : commands.map{ |arr| arr.join(' ') }.join(', ')
+            tags['db.instance'] = "#{host}:#{port}"
 
             scope = ::Redis::Instrumentation.tracer.start_active_span("redis.pipelined", tags: tags)
 
