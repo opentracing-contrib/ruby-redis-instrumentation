@@ -34,7 +34,7 @@ class Redis
           alias_method :call_original, :call
           alias_method :call_pipeline_original, :call_pipeline
 
-          def call(command, trace: true)
+          def call(command, trace: true, &block)
             tags = ::Redis::Instrumentation::COMMON_TAGS.dup
             tags['db.statement'] = command.join(' ')
             tags['db.instance'] = db
@@ -43,7 +43,7 @@ class Redis
             # command[0] is usually the actual command name
             scope = ::Redis::Instrumentation.tracer.start_active_span("redis.#{command[0]}", tags: tags)
 
-            call_original(command)
+            call_original(command, &block)
           rescue => e
             if scope
               scope.span.set_tag("error", true)
