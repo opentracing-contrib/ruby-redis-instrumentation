@@ -6,8 +6,8 @@ require "redis/instrumentation/version"
 Gem::Specification.new do |spec|
   spec.name          = "redis-instrumentation"
   spec.version       = RedisInstrumentation::VERSION
-  spec.authors       = ["Ashwin Chandrasekar"]
-  spec.email         = ["achandrasekar@signalfx.com"]
+  spec.authors       = ["SignalFx, Inc."]
+  spec.email         = ["info@signalfx.com"]
 
   spec.summary       = %q{OpenTracing instrumentation for the Redis Ruby client.}
   spec.homepage      = "https://github.com/signalfx/ruby-redis-instrumentation"
