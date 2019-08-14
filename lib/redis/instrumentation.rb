@@ -1,6 +1,5 @@
 require "redis/instrumentation/version"
 require "opentracing"
-require "redis"
 
 # this is a class instead of module to match how Redis does it
 # otherwise this name will collide
