@@ -47,6 +47,10 @@ RSpec.describe Redis::Instrumentation do
         }
         expect(span_tags).to eq expected_tags
       end
+
+      it 'yields to blocks' do
+        expect { |b| client.call([:set, "foo", "bar"], &b) }.to yield_control
+      end
     end
 
     describe 'pipelined commands' do
