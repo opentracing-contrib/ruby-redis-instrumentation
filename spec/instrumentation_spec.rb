@@ -51,6 +51,31 @@ RSpec.describe Redis::Instrumentation do
       it 'yields to blocks' do
         expect { |b| client.call([:set, "foo", "bar"], &b) }.to yield_control
       end
+
+      it "logs errors as semantic key value pairs" do
+        expected_error = Redis::CannotConnectError.new("unable to connect")
+        allow_any_instance_of(::Redis::Client).to receive(:process).and_raise(expected_error)
+
+        expect { redis.set("foo", "bar") }.to raise_error(expected_error)
+
+        expect(tracer.spans.count).to be 1
+
+
+        span_tags = tracer.spans.last.tags
+        expected_tags = {
+          'span.kind' => 'client',
+          'component' => 'ruby-redis',
+          'db.type' => 'redis',
+          'db.instance' => 0,
+          'peer.address' => 'redis://localhost:6379',
+          'db.statement' => 'set foo bar',
+          'error' => true
+        }
+        expect(span_tags).to eq expected_tags
+
+        span_logs = tracer.spans.last.logs.last
+        expect(span_logs).to include("error.kind": "Redis::CannotConnectError", "error.object": expected_error, message: expected_error.message)
+      end
     end
 
     describe 'pipelined commands' do
@@ -81,6 +106,35 @@ RSpec.describe Redis::Instrumentation do
           'db.statement' => 'multi, set foo bar, incr baz, exec'
         }
         expect(span_tags).to eq expected_tags
+      end
+
+      it "logs errors as semantic key value pairs" do
+        expected_error = Redis::CannotConnectError.new("unable to connect")
+        allow_any_instance_of(::Redis::Client).to receive(:process).and_raise(expected_error)
+
+        expect {
+          redis.multi {
+            redis.set 'foo', 'bar'
+            redis.incr 'baz'
+          }
+        }.to raise_error(expected_error)
+
+        expect(tracer.spans.count).to be 1
+
+        span_tags = tracer.spans.last.tags
+        expected_tags = {
+          'span.kind' => 'client',
+          'component' => 'ruby-redis',
+          'db.type' => 'redis',
+          'db.instance' => 0,
+          'peer.address' => 'redis://localhost:6379',
+          'db.statement' => 'multi, set foo bar, incr baz, exec',
+          'error' => true
+        }
+        expect(span_tags).to eq expected_tags
+
+        span_logs = tracer.spans.last.logs.last
+        expect(span_logs).to include("error.kind": "Redis::CannotConnectError", "error.object": expected_error, message: expected_error.message)
       end
     end
   end
