@@ -14,8 +14,10 @@ class Redis
     class << self
 
       attr_accessor :tracer
+      attr_accessor :db_statement_length
 
-      def instrument(tracer: OpenTracing.global_tracer)
+      def instrument(tracer: OpenTracing.global_tracer,
+                     db_statement_length: nil)
         begin
           require 'redis'
         rescue LoadError => e
@@ -23,6 +25,7 @@ class Redis
         end
 
         @tracer = tracer
+        @db_statement_length = db_statement_length
 
         patch_client if !@patched_client
         @patched_client = true
@@ -35,7 +38,9 @@ class Redis
 
           def call(command, trace: true, &block)
             tags = ::Redis::Instrumentation::COMMON_TAGS.dup
-            tags['db.statement'] = command.join(' ')
+            statement = command.join(' ')
+            statement = statement.to_s[0, ::Redis::Instrumentation::db_statement_length] if ::Redis::Instrumentation::db_statement_length
+            tags['db.statement'] = statement
             tags['db.instance'] = db
             tags['peer.address'] = "redis://#{host}:#{port}"
 
@@ -56,7 +61,9 @@ class Redis
           def call_pipeline(pipeline)
             commands = pipeline.commands
             tags = ::Redis::Instrumentation::COMMON_TAGS.dup
-            tags['db.statement'] = commands.empty? ? "" : commands.map{ |arr| arr.join(' ') }.join(', ')
+            statement = commands.empty? ? "" : commands.map{ |arr| arr.join(' ') }.join(', ')
+            statement = statement.to_s[0, ::Redis::Instrumentation::db_statement_length] if ::Redis::Instrumentation::db_statement_length
+            tags['db.statement'] = statement
             tags['db.instance'] = db
             tags['peer.address'] = "redis://#{host}:#{port}"
 
