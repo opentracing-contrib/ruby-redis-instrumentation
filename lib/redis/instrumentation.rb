@@ -46,7 +46,6 @@ class Redis
           rescue => e
             if scope
               scope.span.set_tag("error", true)
-              scope.span.log_kv(key: "message", value: e.message)
               scope.span.log_kv("error.kind": e.class.name, message: e.message, "error.object": e)
             end
             raise e
