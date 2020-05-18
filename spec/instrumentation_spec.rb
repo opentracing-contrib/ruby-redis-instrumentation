@@ -137,5 +137,30 @@ RSpec.describe Redis::Instrumentation do
         expect(span_logs).to include("error.kind": "Redis::CannotConnectError", "error.object": expected_error, message: expected_error.message)
       end
     end
+
+    describe 'Truncated db statements' do
+      before do
+        Redis::Instrumentation.instrument(tracer: tracer, db_statement_length: 5)
+      end
+
+      it 'truncates regular statements' do
+        redis.set("foo", "a" * 1024)
+        expect(tracer.spans.count).to be 1
+
+        span_tags = tracer.spans.last.tags
+        expect(span_tags['db.statement']).to eq 'set f'
+      end
+
+      it 'truncates pipeline statement' do
+        redis.multi do
+          redis.set 'foo', 'bar'
+          redis.incr 'baz'
+        end
+        expect(tracer.spans.count).to be 1
+
+        span_tags = tracer.spans.last.tags
+        expect(span_tags['db.statement']).to eq 'multi'
+      end
+    end
   end
 end

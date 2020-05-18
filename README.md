@@ -31,8 +31,9 @@ require 'redis/instrumentation'
 Redis::Instrumentation.instrument
 ```
 
-`instrument` takes an optional argument, `tracer`, to set a custom OpenTracing
-tracer. It will default to `OpenTracing.global_tracer`.
+`instrument` takes two optional arguments:
+* `tracer`, to set a custom OpenTracing tracer. It will default to `OpenTracing.global_tracer`.
+* `db_statement_length`, to set a maximum value length for the `db.statement` tag.  It will not truncate by default.
 
 ## Development
 
