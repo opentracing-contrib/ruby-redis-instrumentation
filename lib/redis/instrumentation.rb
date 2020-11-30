@@ -50,8 +50,7 @@ class Redis
             call_original(command, &block)
           rescue => e
             if scope
-              scope.span.set_tag("error", true)
-              scope.span.log_kv("error.kind": e.class.name, message: e.message, "error.object": e)
+              scope.span.record_exception(e)
             end
             raise e
           ensure

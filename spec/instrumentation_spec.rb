@@ -69,12 +69,12 @@ RSpec.describe Redis::Instrumentation do
           'db.instance' => 0,
           'peer.address' => 'redis://localhost:6379',
           'db.statement' => 'set foo bar',
-          'error' => true
+          'error' => true,
+          'sfx.error.kind' => expected_error.class.to_s,
+          'sfx.error.message' => expected_error.to_s,
+          'sfx.error.stack' => expected_error.backtrace.join('\n')
         }
         expect(span_tags).to eq expected_tags
-
-        span_logs = tracer.spans.last.logs.last
-        expect(span_logs).to include("error.kind": "Redis::CannotConnectError", "error.object": expected_error, message: expected_error.message)
       end
     end
 

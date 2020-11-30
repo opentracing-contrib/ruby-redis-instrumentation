@@ -1,7 +1,7 @@
 require 'bundler/setup'
 require 'redis'
 require 'redis/instrumentation'
-require 'opentracing_test_tracer'
+require 'signalfx_test_tracer'
 
 RSpec.configure do |config|
 

@@ -1,0 +1,48 @@
+PATH
+  remote: .
+  specs:
+    signalfx-redis-instrumentation (0.1.0)
+      opentracing (> 0.3)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    appraisal (2.3.0)
+      bundler
+      rake
+      thor (>= 0.14.0)
+    diff-lcs (1.4.4)
+    opentracing (0.5.0)
+    rake (10.5.0)
+    redis (4.1.4)
+    rspec (3.10.0)
+      rspec-core (~> 3.10.0)
+      rspec-expectations (~> 3.10.0)
+      rspec-mocks (~> 3.10.0)
+    rspec-core (3.10.0)
+      rspec-support (~> 3.10.0)
+    rspec-expectations (3.10.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.10.0)
+    rspec-mocks (3.10.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.10.0)
+    rspec-support (3.10.0)
+    signalfx_test_tracer (0.1.4)
+      opentracing
+    thor (1.0.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  appraisal (~> 2.2)
+  bundler (~> 2.1)
+  rake (~> 10.0)
+  redis (~> 4.1.0)
+  rspec (~> 3.0)
+  signalfx-redis-instrumentation!
+  signalfx_test_tracer (~> 0.1.4)
+
+BUNDLED WITH
+   2.1.4
